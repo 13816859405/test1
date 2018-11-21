@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.bdqn.dao.ProviderDao">
+
+	<resultMap type="Provider" id="ProviderMap">
+		<id property="id" column="id"/>
+		<result property="name" column="proName"/>
+		<result property="desc" column="proDesc"/>
+	</resultMap>
+	
+	<select id="findAll" resultMap="ProviderMap">
+		SELECT 	id, 
+		proCode, 
+		proName, 
+		proDesc, 
+		proContact, 
+		proPhone, 
+		proAddress, 
+		proFax, 
+		createdBy, 
+		creationDate, 
+		modifyDate, 
+		modifyBy 
+		FROM 
+		smbms.smbms_provider 
+	</select>
+	
+	<!-- 带查询的总记录数 -->
+	<select id="getcount"  resultType="int" >
+		SELECT COUNT(1) FROM smbms_provider
+		<where>
+			<if test="queryProCode!=null and queryProCode !=''">
+			AND proCode  LIKE CONCAT('%',#{queryProCode},'%') 
+			</if>
+			<if test="queryProName!=null and queryProName !=''">
+			AND proName  LIKE CONCAT('%',#{queryProName},'%') 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 带查询的分页 -->
+	<select id="fingByPage"  resultType="Provider" resultMap="ProviderMap">
+		SELECT 	id,proCode,proName,proDesc,proContact, 
+		proPhone,proAddress,proFax,createdBy, 
+		creationDate,modifyDate,modifyBy
+		FROM smbms_provider 
+		<where>
+			<if test="queryProCode!=null and queryProCode !=''">
+			AND proCode  LIKE CONCAT('%',#{queryProCode},'%') 
+			</if>
+			<if test="queryProName!=null and queryProName !=''">
+			AND proName  LIKE CONCAT('%',#{queryProName},'%') 
+			</if>
+		</where>
+		LIMIT #{from},#{pageSize}
+	</select>
+	
+	<insert id="addpro" parameterType="Provider">
+		INSERT INTO smbms_provider 
+			( 
+			proCode, 
+			proName, 
+			proDesc, 
+			proContact, 
+			proPhone, 
+			proAddress, 
+			proFax, 
+			createdBy, 
+			creationDate
+			)
+			VALUES
+			( 
+			#{proCode}, 
+			#{name}, 
+			#{desc}, 
+			#{proContact},
+			#{proPhone},
+			#{proAddress}, 
+			#{proFax}, 
+			#{createdBy}, 
+			#{creationDate}
+			)
+	</insert>
+	
+	<select id="findById" parameterType="int" resultMap="ProviderMap">
+		SELECT 	id, 
+		proCode, 
+		proName, 
+		proDesc, 
+		proContact, 
+		proPhone, 
+		proAddress, 
+		proFax, 
+		createdBy, 
+		creationDate, 
+		modifyDate, 
+		modifyBy 
+		FROM 
+		smbms.smbms_provider 
+		WHERE id=#{pid}
+	</select>
+	
+	<update id="updatepro" parameterType="Provider">
+		UPDATE smbms_provider 
+		<trim prefix="set" suffixOverrides="," suffix="WHERE id =#{id}">
+		<if test="proCode!=null">proCode =#{proCode}, </if>
+		<if test="name!=null">proName = #{name} , </if>
+		<if test="desc!=null">proDesc = #{desc} ,  </if>
+		<if test="proContact!=null">proContact = #{proContact} ,  </if>
+		<if test="proPhone!=null">proPhone = #{proPhone} ,  </if>
+		<if test="proAddress!=null">proAddress = #{proAddress} , </if>
+		<if test="proFax!=null">proFax = #{proFax} ,  </if>
+		<if test="createdBy!=null">createdBy = #{createdBy} ,</if>
+		<if test="creationDate!=null">creationDate = #{creationDate} ,  </if>
+		<if test="modifyBy!=null">modifyBy = #{modifyBy}, </if>
+		<if test="modifyDate!=null">modifyDate = #{modifyDate}, </if>
+		</trim>
+		
+	</update>
+	
+	<delete id="delpro" parameterType="int">
+		DELETE FROM smbms_provider WHERE id = #{id}
+	</delete>
+</mapper>

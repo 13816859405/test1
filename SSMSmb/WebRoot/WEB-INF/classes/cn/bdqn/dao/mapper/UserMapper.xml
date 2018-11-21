@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.bdqn.dao.UserDao">
+
+	<select id="findByUserCode" resultType="User">
+		SELECT 	id, 
+		userCode, 
+		userName, 
+		userPassword, 
+		gender, 
+		birthday, 
+		phone, 
+		address, 
+		userRole, 
+		createdBy, 
+		creationDate, 
+		modifyBy, 
+		modifyDate
+		FROM 
+		smbms_user WHERE userCode=#{userCode}
+	</select>
+	
+	<insert id="addUser" parameterType="User">
+		INSERT INTO smbms_user 
+		( userCode, 
+		userName, 
+		userPassword, 
+		gender, 
+		birthday, 
+		phone, 
+		address, 
+		userRole, 
+		createdBy, 
+		creationDate
+		)
+		VALUES
+		( #{userCode}, 
+		#{userName}, 
+		#{userPassword}, 
+		#{gender}, 
+		#{birthday}, 
+		#{phone}, 
+		#{address}, 
+		#{userRole}, 
+		#{createdBy}, 
+		#{creationDate}
+		)
+	</insert>
+	
+	<update id="updateUser" parameterType="User">
+		UPDATE smbms_user 
+		<trim prefix="set" suffixOverrides="," suffix="WHERE id =#{id}">
+		<if test="userCode!=null">userCode =#{userCode}, </if>
+		<if test="userName!=null">userName = #{userName} , </if>
+		<if test="userPassword!=null">userPassword = #{userPassword} ,  </if>
+		<if test="gender!=null">gender = #{gender} ,  </if>
+		<if test="birthday!=null">birthday = #{birthday} ,  </if>
+		<if test="phone!=null">phone = #{phone} , </if>
+		<if test="address!=null">address = #{address} ,  </if>
+		<if test="userRole!=null">userRole = #{userRole} ,</if>
+		<if test="createdBy!=null">createdBy = #{createdBy} ,</if>
+		<if test="creationDate!=null">creationDate = #{creationDate} ,  </if>
+		<if test="modifyBy!=null">modifyBy = #{modifyBy}, </if>
+		<if test="modifyDate!=null">modifyDate = #{modifyDate}, </if>
+		</trim>
+		
+	</update>
+	
+	<update id="upDateByPwd" parameterType="User">
+		UPDATE smbms_user 
+		<trim prefix="set" suffixOverrides="," suffix="WHERE id =#{id}">
+		<if test="userCode!=null">userCode =#{userCode}, </if>
+		<if test="userName!=null">userName = #{userName} , </if>
+		<if test="userPassword!=null">userPassword = #{userPassword} ,  </if>
+		<if test="gender!=null">gender = #{gender} ,  </if>
+		<if test="birthday!=null">birthday = #{birthday} ,  </if>
+		<if test="phone!=null">phone = #{phone} , </if>
+		<if test="address!=null">address = #{address} ,  </if>
+		<if test="userRole!=null">userRole = #{userRole} ,</if>
+		<if test="createdBy!=null">createdBy = #{createdBy} ,</if>
+		<if test="creationDate!=null">creationDate = #{creationDate} ,  </if>
+		<if test="modifyBy!=null">modifyBy = #{modifyBy}, </if>
+		<if test="modifyDate!=null">modifyDate = #{modifyDate}, </if>
+		</trim>
+		
+	</update>
+	
+	<select id="findByRoles" resultType="User">
+		SELECT * FROM smbms_user WHERE userRole IN 
+		<foreach collection="array" item="roleIds" open="(" close=")" separator=",">
+			#{roleIds}
+		</foreach>
+	
+	</select>
+	
+	<select id="findByRoles2" resultType="User">
+		SELECT * FROM smbms_user WHERE userRole IN 
+		<foreach collection="list" item="roleIds" open="(" close=")" separator=",">
+			#{roleIds}
+		</foreach>
+	
+	</select>
+	
+	<select id="findByRoles3" resultType="User">
+		SELECT * FROM smbms_user WHERE userRole IN 
+		<foreach collection="roleIds" item="ids" open="(" close=")" separator=",">
+			#{ids}
+		</foreach>
+		AND gender=#{gender}
+	</select>
+	
+	<delete id="deleteUser" parameterType="int">
+		DELETE FROM smbms_user WHERE id = #{id}
+	</delete>
+	
+	<!-- <select id="findTwoAll" resultMap="UserMap">
+		SELECT U.id,U.userName,U.userCode,R.roleName FROM smbms_user U INNER JOIN smbms_role R
+		ON U.userRole=R.id
+	</select> -->
+	
+	<resultMap type="User" id="userMap">
+		<id property="id" column="id"/>
+		<result property="userRoleName" column="RoleName"/>
+		<!-- 一对一或多对一的映射 用户必须对应一个角色 -->
+		<association property="role" javaType="Role">
+			<id property="id" column="roleId"/> 
+			<result property="roleName" column="roleName"/>
+		</association>
+	</resultMap>
+	
+	<select id="findUsersByRoleId" parameterType="int" resultMap="userMap">
+		SELECT U.id,U.userName,U.userCode,R.id AS roleId,R.roleCode,R.roleName 
+		FROM smbms_user U INNER JOIN smbms_role R
+		ON U.userRole=R.id WHERE R.id=#{roleId}
+	</select>
+
+	<!-- 查询用户表记录数 -->
+	<select id="count" resultType="int">
+		select count(1) as count from smbms_user
+	</select>
+	
+	<select id="findAll" resultType="User">
+		SELECT U.id,U.userName,U.userCode ,U.gender,U.birthday,U.phone,R.roleName AS userRoleName FROM smbms_user U INNER JOIN smbms_role R 
+		ON U.userRole = R.id
+	</select>
+	
+	<select id="findById" parameterType="int" resultType="User">
+		SELECT U.id,U.userName,U.userCode ,U.gender,U.birthday,U.phone,U.address,R.roleName AS userRoleName FROM smbms_user U INNER JOIN smbms_role R 
+		ON U.userRole = R.id
+		WHERE U.id=#{uid}
+	</select>
+	
+	<select id="findByName" parameterType="String" resultType="User">
+		select * from smbms_user WHERE userName LIKE CONCAT('%',#{name},'%')
+	</select>
+	
+	<!-- <select id="findByCondition1" parameterType="User" resultType="User">
+		select * from smbms_user 
+		<where>
+		<if test="userName!=null and userName!=''">AND userName LIKE CONCAT('%',#{userName},'%')</if>
+		<if test="userRole!=null">AND userRole=#{userRole}</if>
+		<if test="gender!=null">AND gender=#{gender}</if>
+		</where>
+	</select> -->
+	
+	<select id="findByCondition1" parameterType="User" resultType="User">
+		select * from smbms_user 
+		<trim prefix="where" prefixOverrides="AND">
+		<if test="userName!=null and userName!=''">AND userName LIKE CONCAT('%',#{userName},'%')</if>
+		<if test="userRole!=null">AND userRole=#{userRole}</if>
+		<if test="gender!=null">AND gender=#{gender}</if>
+		</trim>
+	</select>
+	
+	<select id="findByCondition2" parameterType="map" resultType="User">
+		select * from smbms_user WHERE userName LIKE CONCAT('%',#{userName},'%')
+		AND userRole=#{userRole}
+		AND gender=#{gender}
+	</select>
+	
+	<select id="findByCondition3"  resultType="User">
+		select * from smbms_user WHERE userName LIKE CONCAT('%',#{userName},'%')
+		AND userRole=#{userRole}
+		AND gender=#{gender}
+	</select>
+	
+	<!-- 当第一个条件不满足才进入下一个 -->
+	<select id="findByCondition123" parameterType="User" resultType="User">
+		select * from smbms_user 
+		<where>
+		<choose>
+			<when test="userName!=null and userName!=''">AND userName LIKE CONCAT('%',#{userName},'%')</when>
+		 	<when test="userRole!=null">AND userRole=#{userRole}</when>
+		 	<otherwise>AND gender=#{gender}</otherwise>
+		
+		</choose>
+		</where>
+		
+	</select>
+	
+	<select id="findByPage"  resultType="User">
+		select * from smbms_user LIMIT #{from},#{pageSize}
+	</select>
+	
+	<!-- 带查询的分页 -->
+	<select id="findByPage2"  resultType="User">
+		SELECT U.id,U.userName,U.userCode ,U.gender,U.birthday,U.phone,
+		R.roleName AS userRoleName 
+		FROM smbms_user U INNER JOIN smbms_role R 
+		ON U.userRole = R.id
+		<where>
+			<if test="queryName!=null and queryName!=''">
+			AND userName LIKE CONCAT('%',#{queryName},'%')
+			</if>
+			<if test="roleId!=null and roleId!=0">
+			AND userRole=#{roleId}
+			</if>			
+		</where>
+		LIMIT #{from},#{pageSize}
+	</select>
+	
+	<!-- 带查询的总记录数 -->
+	<select id="getcount"  resultType="int">
+		SELECT COUNT(*) 
+ 		FROM smbms_user U INNER JOIN smbms_role R ON U.userRole = R.id
+		<where>
+			<if test="queryName!=null and queryName != ''">
+			AND userName  LIKE CONCAT('%',#{queryName},'%') 
+			</if>
+			<if test="roleId!=null  and roleId != 0">
+			AND userRole = #{roleId}
+			</if>
+		</where>
+	</select>
+</mapper>
